@@ -1,0 +1,648 @@
+basePath: /api
+definitions:
+  dto.BranchDto:
+    properties:
+      lastFailedRunDate:
+        type: string
+      lastFailedRunURL:
+        type: string
+      lastRunDuration:
+        type: integer
+      lastSuccessRunDate:
+        type: string
+      lastSuccessRunURL:
+        type: string
+      name:
+        type: string
+      report:
+        $ref: '#/definitions/dto.ReportDto'
+      state:
+        description: state of last run
+        type: string
+    type: object
+  dto.ConfigTriggersDto:
+    properties:
+      organizationsTriggerTime:
+        type: integer
+      runFailedTriggerTime:
+        type: integer
+      usersTriggerTime:
+        type: integer
+    type: object
+  dto.CreateGitSourceRequestDto:
+    properties:
+      agolaClientId:
+        type: string
+      agolaClientSecret:
+        type: string
+      agolaRemoteSourceName:
+        type: string
+      gitApiUrl:
+        type: string
+      gitClientId:
+        type: string
+      gitClientSecret:
+        type: string
+      gitType:
+        type: string
+      name:
+        type: string
+    type: object
+  dto.CreateOrganizationRequestDto:
+    properties:
+      agolaRef:
+        type: string
+      behaviourExclude:
+        type: string
+      behaviourInclude:
+        type: string
+      behaviourType:
+        type: string
+      gitPath:
+        type: string
+      visibility:
+        type: string
+    type: object
+  dto.CreateOrganizationResponseDto:
+    properties:
+      errorCode:
+        type: string
+      organizationURL:
+        type: string
+    type: object
+  dto.DeleteOrganizationResponseDto:
+    properties:
+      errorCode:
+        type: string
+    type: object
+  dto.ExternalUserDto:
+    properties:
+      email:
+        type: string
+    type: object
+  dto.GitSourcesDto:
+    properties:
+      gitApiUrl:
+        type: string
+      gitType:
+        type: string
+      loginUrl:
+        type: string
+      name:
+        type: string
+    type: object
+  dto.OrganizationDto:
+    properties:
+      agolaRef:
+        type: string
+      avatarUrl:
+        type: string
+      id:
+        type: string
+      lastFailedRunDate:
+        type: string
+      lastFailedRunURL:
+        type: string
+      lastRunDuration:
+        type: integer
+      lastSuccessRunDate:
+        type: string
+      lastSuccessRunURL:
+        type: string
+      organizationName:
+        type: string
+      organizationURL:
+        type: string
+      projects:
+        items:
+          $ref: '#/definitions/dto.ProjectDto'
+        type: array
+      visibility:
+        type: string
+      worstReport:
+        $ref: '#/definitions/dto.ReportDto'
+    type: object
+  dto.ProjectDto:
+    properties:
+      branchs:
+        items:
+          $ref: '#/definitions/dto.BranchDto'
+        type: array
+      projectName:
+        type: string
+      projectURL:
+        type: string
+      worstReport:
+        $ref: '#/definitions/dto.ReportDto'
+    type: object
+  dto.ReportDto:
+    properties:
+      branchName:
+        type: string
+      failedRuns:
+        type: integer
+      organizationName:
+        type: string
+      projectName:
+        type: string
+      successRunsPercentage:
+        type: integer
+      totalRuns:
+        type: integer
+    type: object
+  dto.UpdateGitSourceRequestDto:
+    properties:
+      agolaRemoteSource:
+        type: string
+      gitApiUrl:
+        type: string
+      gitClientId:
+        type: string
+      gitClientSecret:
+        type: string
+      gitType:
+        type: string
+    type: object
+info:
+  contact: {}
+  title: papagaio-api
+  version: 0.1.0
+paths:
+  /addexternaluser/{organizationRef}:
+    post:
+      description: Add an external user
+      parameters:
+      - description: Organization name
+        in: path
+        name: organizationRef
+        required: true
+        type: string
+      - description: external user email
+        in: body
+        name: email
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ExternalUserDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+        "404":
+          description: not found
+      security:
+      - ApiKeyToken: []
+      summary: Add External User
+      tags:
+      - Organization
+  /agolarefs:
+    get:
+      description: Return the organization ref list existing in Agola but not in Papagaio
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: bad request
+      security:
+      - ApiKeyToken: []
+      summary: Return the organization ref list
+      tags:
+      - Organization
+  /createorganization:
+    post:
+      description: Create an organization in Papagaio and in Agola. If already exists
+        on Agola and you want to use the same organization then use the query parameter
+        force
+      parameters:
+      - description: ?force
+        in: query
+        name: force
+        type: boolean
+      - description: Organization information
+        in: body
+        name: organization
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateOrganizationRequestDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/dto.CreateOrganizationResponseDto'
+        "400":
+          description: bad request
+      security:
+      - ApiKeyToken: []
+      summary: Create a new Organization in Papagaio/Agola
+      tags:
+      - Organization
+  /deleteexternaluser/{organizationRef}:
+    delete:
+      description: Delete an external user
+      parameters:
+      - description: Organization name
+        in: path
+        name: organizationRef
+        required: true
+        type: string
+      - description: external user email
+        in: body
+        name: email
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+        "404":
+          description: not found
+      security:
+      - ApiKeyToken: []
+      summary: Delete External User
+      tags:
+      - Organization
+  /deleteorganization{organizationRef}:
+    delete:
+      description: Delete an organization in Papagaio and in Agola. Its possible to
+        delete only in Papagaio using the parameter internalonly.
+      parameters:
+      - description: Organization Name
+        in: path
+        name: organizationRef
+        required: true
+        type: string
+      - description: ?internalonly
+        in: query
+        name: internalonly
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/dto.DeleteOrganizationResponseDto'
+        "500":
+          description: Not found
+      security:
+      - ApiKeyToken: []
+      summary: Delete Organization
+      tags:
+      - Organization
+  /getexternaluser/{organizationRef}:
+    get:
+      description: Return the organization e-mail list of External Users
+      parameters:
+      - description: Organization Name
+        in: path
+        name: organizationRef
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              type: string
+            type: array
+        "400":
+          description: bad request
+      security:
+      - ApiKeyToken: []
+      summary: Get a list of External Users e-mails
+      tags:
+      - Organization
+  /gettriggersconfig:
+    get:
+      description: Get trigger timers
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/dto.ConfigTriggersDto'
+      security:
+      - ApiKeyToken: []
+      summary: Return time triggers
+      tags:
+      - Triggers
+  /gitorganizations:
+    get:
+      description: Return a list of all Organizations
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+        "404":
+          description: not found
+      security:
+      - ApiKeyToken: []
+      summary: List Git Organizations
+      tags:
+      - GitSources
+  /gitsource:
+    post:
+      description: Add a GitSource with the data provided in the body
+      parameters:
+      - description: Git Source information
+        in: body
+        name: gitSource
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateGitSourceRequestDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+        "422":
+          description: Already exists
+      security:
+      - ApiKeyToken: []
+      summary: Add a GitSource
+      tags:
+      - GitSources
+  /gitsource/{gitSourceName}:
+    delete:
+      description: Remove a GitSource
+      parameters:
+      - description: Git Source Name
+        in: path
+        name: gitSourceName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+        "422":
+          description: Not found
+      security:
+      - ApiKeyToken: []
+      summary: Remove a GitSource
+      tags:
+      - GitSources
+    put:
+      description: Update GitSource information
+      parameters:
+      - description: Git Source Name
+        in: path
+        name: gitSourceName
+        required: true
+        type: string
+      - description: Git Source information
+        in: body
+        name: gitSource
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateGitSourceRequestDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+        "404":
+          description: not found
+      security:
+      - ApiKeyToken: []
+      summary: Update a GitSource
+      tags:
+      - GitSources
+  /gitsources:
+    get:
+      description: Return a list of gitsources
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              $ref: '#/definitions/dto.GitSourcesDto'
+            type: array
+        "400":
+          description: bad request
+      security:
+      - ApiKeyToken: []
+      summary: Return a list of gitsources
+      tags:
+      - GitSources
+  /report:
+    get:
+      description: Obtain a full report of all organizations. If the "onlyowner" query
+        parameter is specified, only the organizations the user owns will be listed.
+      parameters:
+      - description: ?onlyowner
+        in: query
+        name: onlyowner
+        required: true
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            items:
+              $ref: '#/definitions/dto.OrganizationDto'
+            type: array
+      security:
+      - ApiKeyToken: []
+      summary: Get Report
+      tags:
+      - Organization
+  /report/{organizationRef}:
+    get:
+      description: Obtain a report of a specific organization
+      parameters:
+      - description: Organization Name
+        in: path
+        name: organizationRef
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/dto.OrganizationDto'
+        "404":
+          description: not found
+      security:
+      - ApiKeyToken: []
+      summary: Get Report from a specific organization
+      tags:
+      - Organization
+  /report/{organizationRef}/{projectName}:
+    get:
+      description: Obtain a report of a specific organization/project
+      parameters:
+      - description: Organization Name
+        in: path
+        name: organizationRef
+        required: true
+        type: string
+      - description: Project Name
+        in: path
+        name: projectName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+          schema:
+            $ref: '#/definitions/dto.ProjectDto'
+        "404":
+          description: not found
+      security:
+      - ApiKeyToken: []
+      summary: Get Report from a specific organization/project
+      tags:
+      - Organization
+  /restarttriggers:
+    post:
+      description: Restart timers
+      parameters:
+      - description: ?all
+        in: query
+        name: all
+        type: boolean
+      - description: ?organizationsynktrigger
+        in: query
+        name: organizationsynktrigger
+        type: boolean
+      - description: ?runsFailedDiscoveryTrigger
+        in: query
+        name: runsFailedDiscoveryTrigger
+        type: boolean
+      - description: ?usersSynkTrigger
+        in: query
+        name: usersSynkTrigger
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+      security:
+      - ApiKeyToken: []
+      summary: restart triggers
+      tags:
+      - Triggers
+  /savetriggersconfig:
+    post:
+      description: Save trigger timers
+      parameters:
+      - description: Config triggers
+        in: body
+        name: configTriggersDto
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ConfigTriggersDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+      security:
+      - ApiKeyToken: []
+      summary: Save time triggers
+      tags:
+      - Triggers
+  /starttriggers:
+    post:
+      description: Start timers
+      parameters:
+      - description: ?all
+        in: query
+        name: all
+        type: boolean
+      - description: ?organizationsynktrigger
+        in: query
+        name: organizationsynktrigger
+        type: boolean
+      - description: ?runsFailedDiscoveryTrigger
+        in: query
+        name: runsFailedDiscoveryTrigger
+        type: boolean
+      - description: ?usersSynkTrigger
+        in: query
+        name: usersSynkTrigger
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+      security:
+      - ApiKeyToken: []
+      summary: start triggers
+      tags:
+      - Triggers
+  /stoptriggers:
+    post:
+      description: Stop timers
+      parameters:
+      - description: ?all
+        in: query
+        name: all
+        type: boolean
+      - description: ?organizationsynktrigger
+        in: query
+        name: organizationsynktrigger
+        type: boolean
+      - description: ?runsFailedDiscoveryTrigger
+        in: query
+        name: runsFailedDiscoveryTrigger
+        type: boolean
+      - description: ?usersSynkTrigger
+        in: query
+        name: usersSynkTrigger
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+      security:
+      - ApiKeyToken: []
+      summary: stop triggers
+      tags:
+      - Triggers
+  /triggersstatus:
+    get:
+      description: Get triggers status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ok
+      security:
+      - ApiKeyToken: []
+      summary: get triggers status
+      tags:
+      - Triggers
+securityDefinitions:
+  ApiKeyToken:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

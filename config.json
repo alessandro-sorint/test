@@ -1,0 +1,33 @@
+{
+    "Server": {
+      "Port": "8000",
+      "ApiExposedURL": "http://localhost:8000",
+      "ApiBasePath": "/api"
+    },
+    "Database": {
+      "DbPath": "/badger",
+      "DbName": "papagaio-api"
+    },
+    "Agola": {
+      "AgolaAddr": "https://agoladev.sorintdev.it",
+      "AdminToken": "admintoken"
+    },
+    "CmdConfig": {
+       "DefaultGatewayURL": "http://localhost:8000"
+    },
+    "AdminToken": "admintoken",
+    "TokenSigning": {
+      "Method": "hmac",
+      "Key": "supersecretsigningkey",
+      "Duration": 3600
+    },
+    "LogHttpRequest": true,
+    "TriggersConfig": {
+      "OrganizationsDefaultTriggerTime": 5,
+      "RunFailedDefaultTriggerTime": 5,
+      "UsersDefaultTriggerTime": 1440,
+      "StartOrganizationsTrigger": true,
+      "StartRunFailedTrigger": true,
+      "StartUsersTrigger": true
+    }
+}
