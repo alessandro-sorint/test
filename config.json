@@ -28,6 +28,6 @@
       "UsersDefaultTriggerTime": 1440,
       "StartOrganizationsTrigger": true,
       "StartRunFailedTrigger": true,
-      "StartUsersTrigger": true
+      "StartUsersTriggers": true
     }
 }
