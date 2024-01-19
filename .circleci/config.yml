@@ -12,6 +12,9 @@ jobs:
       - run:
           name: Run tests
           command: echo 'replace me with real tests!'
+      - run:
+          name: Run tests
+          command: cat config.json
   build:
     docker:
       - image: cimg/base:stable
